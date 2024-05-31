@@ -21,7 +21,7 @@ async def arun(state: AgentState):
 
     query = f"""Given a chat history, generate 3 possible questions related to JCB promotions the user is interested in.
 Text:
-{state["messages"][-1].content}"""
+{state["messages"][:1].content}"""
 
     parser = PydanticOutputParser(pydantic_object=Questions, name="recommendation_agent_output_parser")  # type: ignore
 
