@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["vikyw89 <vikyw89@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+langchain = "^0.2.1"
+chainlit = "^1.1.202"
+langchain-community = "^0.2.1"
+langgraph = "^0.0.59"
+langchain-openai = "^0.1.8"
+
+python-dotenv = "^1.0.1"
+prisma = "^0.13.1"
+pytest = "^8.2.1"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+dev = "scripts.dev:run"
