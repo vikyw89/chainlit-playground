@@ -14,7 +14,7 @@ def run():
 
 async def seed():
     # load data
-    await db.connect()
+    db.connect()
     pc = Pinecone(api_key=PINECONE_API_KEY,host=PINECONE_HOST_URL)
     index = pc.Index(name="promotions", host=PINECONE_HOST_URL or "")
     # index.delete(deleteAll=True,namespace="promotions")
