@@ -1,3 +1,4 @@
+import json
 from pydantic import BaseModel, Field
 from configs.index import OPENAI_API_KEY
 from .state import AgentState
@@ -10,19 +11,20 @@ if not (OPENAI_API_KEY):
 
 
 async def arun(state: AgentState):
-    # will generate recommendation
-
     model = ChatOpenAI(
         model="gpt-3.5-turbo", api_key=OPENAI_API_KEY, name="recommendation"  # type: ignore
     )
 
+    parsed_messages = ""
+    for message in state["messages"]:
+        parsed_messages += message.json()
+        parsed_messages += "\n"
     class Questions(BaseModel):
         text: list[str] = Field(description="text suggestions for human")
 
-    query = f"""Given a chat history, generate 3 possible questions related to JCB promotions the user is interested in.
+    query = f"""Given a chat history, generate 3 questions that the user might want to ask about available JCB promotions.
 Text:
-{state["messages"][:1].content}"""
-
+{parsed_messages}"""
     parser = PydanticOutputParser(pydantic_object=Questions, name="recommendation_agent_output_parser")  # type: ignore
 
     prompt = PromptTemplate(

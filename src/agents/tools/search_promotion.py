@@ -1,16 +1,21 @@
+from typing import Annotated, Literal
 from langchain_core.tools import StructuredTool
+from pydantic import BaseModel, Field
 from configs.index import db
 
 
-async def arun(location: str, category: str):
+async def arun(location: str, category: Literal["Retail Store", "Restaurant", "Entertainment","Hotel","Relaxation","Other","Leisure"] = "Other"):
+    """useful to search JCB promotion"""
     await db.connect()
 
+    # parse location
+    location = location.title()
     promotions = await db.promotion.find_many(
         where={
             "location": {"contains": location},
             "category1": {"contains": category},
         },
-        take=5,
+        take=3,
     )
 
     parsed_promotions = []
