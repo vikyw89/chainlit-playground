@@ -1,3 +1,4 @@
+from typing import Literal, Optional
 from langchain_core.tools import StructuredTool
 from configs.index import OPENAI_API_KEY, PINECONE_API_KEY, PINECONE_HOST_URL
 from llama_index.vector_stores.pinecone import PineconeVectorStore
@@ -14,7 +15,7 @@ pc = Pinecone(api_key=PINECONE_API_KEY, host=PINECONE_HOST_URL)
 pinecone_index = pc.Index(host=PINECONE_HOST_URL or "")
 
 
-async def arun(query: str, location: str):
+async def arun(query: str, location: Optional[str], category: Optional[Literal["Retail Store", "Restaurant", "Entertainment","Hotel","Relaxation","Other","Leisure"]]):
 
     vector_store = PineconeVectorStore(
         pinecone_index=pinecone_index,
@@ -28,12 +29,19 @@ async def arun(query: str, location: str):
     )
     llm = OpenAI(model="gpt-3.5-turbo", api_key=OPENAI_API_KEY)
 
-    location = await similar_location_search(location)
+    
+
+    raw_filter = []
+
+    if location:
+        location = await similar_location_search(location)
+        raw_filter.append(MetadataFilter(key="location", value=location))
+
+    if category:
+        raw_filter.append(MetadataFilter(key="category1", value=category))
 
     filters = MetadataFilters(
-        filters=[
-            MetadataFilter(key="location", value=location),
-        ]
+        filters=raw_filter
     )
 
     # node postprocessors
@@ -65,7 +73,7 @@ async def arun(query: str, location: str):
         parsed_source_nodes.append(parsed_node)
 
     return {
-        "search_query": {"query": query, "location": location},
+        "search_query": {"query": query, "location": location, "category": category},
         "source_nodes": parsed_source_nodes,
         "result": response.response,  # type: ignore
     }
