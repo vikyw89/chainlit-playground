@@ -8,7 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
 langchain = "^0.2.1"
-chainlit = "^1.1.202"
 langchain-community = "^0.2.1"
 langgraph = "^0.0.59"
 langchain-openai = "^0.1.8"
@@ -16,10 +15,12 @@ python-dotenv = "^1.0.1"
 pytest = "^8.2.1"
 redis = "^5.0.4"
 llama-index-vector-stores-pinecone = "^0.1.7"
-
 llama-index-embeddings-openai = "^0.1.10"
 llama-index-llms-openai = "^0.1.22"
 prisma = "^0.13.1"
+chainlit = "1.1.202"
+literalai = "0.0.601"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -24,19 +24,17 @@ def auth_callback(username: str, password: str):
 @cl.on_chat_start
 async def init():
     session_id = uuid4().hex
-    history = RedisChatMessageHistory(url=REDIS_URL or "",session_id=session_id or "", key_prefix="jcb:")
     cl.user_session.set(key="session_id", value=session_id)
-    cl.user_session.set(key="memory", value=history)
     message = cl.Message(content="Hello! I am JCB Promotion Assistant. I excel in finding good JCB deals. How can I help you today?")
     await message.send()
 
 @cl.on_message
 async def run_convo(message: cl.Message):
-    history = cl.user_session.get(key="memory")
-    cl.user_session.get(key="memory")
-    history.add_user_message(HumanMessage(content=message.content)) # type: ignore
+    session_id = cl.user_session.get(key="session_id")
+    history = RedisChatMessageHistory(url=REDIS_URL or "",session_id=session_id or "", key_prefix="jcb:")
+    history.add_user_message(HumanMessage(content=message.content))
     stream = runnable.astream_events(
-        input={"messages": history.messages[-4:]}, # type: ignore
+        input={"messages": history.messages[-4:]},
         version="v2"
     )
 
@@ -75,8 +73,8 @@ async def run_convo(message: cl.Message):
             data = chunk["data"]["output"]
             questions : list[str] = data.text # type: ignore
             actions = []
-            for question in questions: # type: ignore
-                actions.append(cl.Action(name=question, value=question, label=question))
+            # for question in questions: # type: ignore
+            #     actions.append(cl.Action(name=question, value=question, label=question))
 
             # res = await cl.AskActionMessage(
             #     content="You might want to ask:",
@@ -88,18 +86,13 @@ async def run_convo(message: cl.Message):
             # if res:
             #     human_message = res["value"]
                 
+    history.add_ai_message("test")
     await msg.send()
 
-    history.add_ai_message(msg.content) # type: ignore
 
 @cl.on_chat_resume
 async def on_chat_resume(thread: ThreadDict):
     history = RedisChatMessageHistory(url=REDIS_URL or "",session_id=thread["id"] or "", key_prefix="jcb:")
-    root_messages = [m for m in thread["steps"] if m["parentId"] == None] # type: ignore
-    for message in root_messages:
-        if message["type"] == "user_message": # type: ignore
-            history.add_user_message(message["output"]) # type: ignore
-        else:
-            history.add_ai_message(message["output"]) # type: ignore
-
-    cl.user_session.set("memory", history)
+    print("thread", thread)
+    # cl.user_session.set(key="memory",value=history.messages)
+    cl.user_session.set(key="session_id", value=thread["id"])
