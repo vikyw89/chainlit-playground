@@ -6,20 +6,37 @@ from src.agents.jcb_agent.index import runnable
 from configs.index import REDIS_URL
 import chainlit as cl
 from langchain_core.messages import AIMessageChunk
+from chainlit.types import ThreadDict
+import chainlit as cl
 
+@cl.password_auth_callback
+def auth_callback(username: str, password: str):
+    # Fetch the user matching username from your database
+    # and compare the hashed password with the value stored in the database
+    if (username, password) == ("admin", "admin"):
+        return cl.User(
+            identifier="admin", metadata={"role": "admin", "provider": "credentials"}
+        )
+    else:
+        return None
 
+  
 @cl.on_chat_start
 async def init():
     session_id = uuid4().hex
+    history = RedisChatMessageHistory(url=REDIS_URL or "",session_id=session_id or "", key_prefix="jcb:")
     cl.user_session.set(key="session_id", value=session_id)
+    cl.user_session.set(key="memory", value=history)
+    message = cl.Message(content="Hello! I am JCB Promotion Assistant. I excel in finding good JCB deals. How can I help you today?")
+    await message.send()
 
 @cl.on_message
 async def run_convo(message: cl.Message):
-    session_id = cl.user_session.get(key="session_id")
-    history = RedisChatMessageHistory(url=REDIS_URL or "",session_id=session_id or "", key_prefix="jcb:")
-    await history.aadd_messages(messages=[HumanMessage(content=message.content)])
+    history = cl.user_session.get(key="memory")
+    cl.user_session.get(key="memory")
+    history.add_user_message(HumanMessage(content=message.content)) # type: ignore
     stream = runnable.astream_events(
-        input={"messages": history.messages[-4:]},
+        input={"messages": history.messages[-4:]}, # type: ignore
         version="v2"
     )
 
@@ -72,6 +89,17 @@ async def run_convo(message: cl.Message):
             #     human_message = res["value"]
                 
     await msg.send()
-    
 
+    history.add_ai_message(msg.content) # type: ignore
 
+@cl.on_chat_resume
+async def on_chat_resume(thread: ThreadDict):
+    history = RedisChatMessageHistory(url=REDIS_URL or "",session_id=thread["id"] or "", key_prefix="jcb:")
+    root_messages = [m for m in thread["steps"] if m["parentId"] == None] # type: ignore
+    for message in root_messages:
+        if message["type"] == "user_message": # type: ignore
+            history.add_user_message(message["output"]) # type: ignore
+        else:
+            history.add_ai_message(message["output"]) # type: ignore
+
+    cl.user_session.set("memory", history)

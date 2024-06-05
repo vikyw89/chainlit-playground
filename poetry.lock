@@ -1126,6 +1126,20 @@ files = [
 llama-index-core = ">=0.10.1,<0.11.0"
 
 [[package]]
+name = "llama-index-llms-openai"
+version = "0.1.22"
+description = "llama-index llms openai integration"
+optional = false
+python-versions = "<4.0,>=3.8.1"
+files = [
+    {file = "llama_index_llms_openai-0.1.22-py3-none-any.whl", hash = "sha256:84a8c910671460ad724ed818192f209f7481e71bcc6528553ba7e66db2e14bcd"},
+    {file = "llama_index_llms_openai-0.1.22.tar.gz", hash = "sha256:729bf2ea7043517465e1d585089512b77d8b3ce92233a67c138d5d621061ed56"},
+]
+
+[package.dependencies]
+llama-index-core = ">=0.10.24,<0.11.0"
+
+[[package]]
 name = "llama-index-vector-stores-pinecone"
 version = "0.1.7"
 description = "llama-index vector_stores pinecone integration"
@@ -2968,4 +2982,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<3.13"
-content-hash = "75d11f3dfb607f52cfb347ad151f16e8eb52e1d8e3d68a573caa92d0aa92e610"
+content-hash = "3c7a647de859399411d86db7b762a417e9d477dfba8376dce62dfe578d904d07"

@@ -7,7 +7,7 @@ from pinecone import Pinecone
 from langchain_community.agent_toolkits import create_sql_agent
 
 
-async def arun(query: str):
+async def arun(query: str, category: Literal["Retail Store", "Restaurant", "Entertainment","Hotel","Relaxation","Other","Leisure"] = "Other"):
     """useful to search JCB promotion"""
     from langchain_community.utilities import SQLDatabase
 
@@ -22,7 +22,7 @@ async def arun(query: str):
     res = await agent_executor.ainvoke(f"""Let's think step by step. 
 Ensure accuracy. 
 Retrieve all promotions that match {query}. 
-Possible categories: Retail Store, Restaurant, Entertainment, Hotel, Relaxation, Other, Leisure.
+Category": {category}.
 Limit to 3 top results.
 """)  # type: ignore
 
